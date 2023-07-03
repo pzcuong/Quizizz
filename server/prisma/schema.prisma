@@ -1,0 +1,315 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// generator erd {
+//     provider = "prisma-erd-generator"
+//     output   = "../ERD.svg"
+//     theme    = "forest"
+// }
+generator dbml {
+    provider = "prisma-dbml-generator"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+// Database
+
+// Role:
+// +id
+// +title
+// + createdAt
+// + updatedAt
+
+//  User:
+// + id 
+// + roleID
+// + username
+// + password
+// + email
+// + avt
+// + createdAt
+// + updatedAt
+// +token
+// +isLogin
+// +PIN
+
+// ExternalUser:
+// +id
+// +name
+// +token
+// + createdAt
+// + updatedAt
+
+// Quizz:
+// +id
+// +userID
+// +tagID :
+// +categoryQuestionID: 
+// +categoryAnswerID:
+// + content
+// + answer: AnswerId[]
+// + createdAt
+// + updatedAt
+
+// Tag:
+// +id
+// +userID
+// +title
+// + createdAt
+// + updatedAt
+
+// CategoryQuestion:
+// +id
+// +userID
+// +title: [Text, IMG, AUDIO]
+// + createdAt
+// + updatedAt
+
+// CategoryAnswer:
+// +id
+// +userID
+// +title: [MC, SC, TF]
+// + createdAt
+// + updatedAt
+
+// Answer:
+// +id
+// +quizzID
+// + content
+// + isCorrect
+// + createdAt
+// + updatedAt
+
+// QuizzSet:
+// +id
+// +userID
+// +quizzList: quizzID[ ]
+// +type
+// + createdAt
+// + updatedAt
+
+// Game:
+// +id
+// +userID
+// +roomID
+// +url
+// +token
+// +islock
+// + createdAt
+// + updatedAt
+
+// Room:
+// +id
+// +gameID 
+// +userlist: userid[ ]
+// + createdAt
+// + updatedAt
+
+// History:
+// +id
+// +gameID
+// +listUser: RankID[ ]
+// + createdAt
+// + updatedAt
+
+// Rank:
+// +id
+// +gameID
+// +historyID
+// +username
+// +top
+// +score
+// + createdAt
+// + updatedAt
+
+model Role {
+    id    String @id @default(dbgenerated("uuid()"))
+    title String
+
+    internalUsers InternalUser[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model InternalUser {
+    id        String  @id @default(dbgenerated("uuid()"))
+    roleId    String
+    username  String
+    name      String?
+    password  String
+    email     String
+    avatarUrl String
+    token     String
+    isLogin   Boolean
+    PIN       String
+
+    rooms             Room[]
+    role              Role               @relation(fields: [roleId], references: [id])
+    quizzes           Quizz[]
+    tags              Tag[]
+    categoryQuestions CategoryQuestion[]
+    categoryAnswers   CategoryAnswer[]
+    quizzSets         QuizzSet[]
+    games             Game[]
+    history           History?           @relation(fields: [historyId], references: [id])
+    historyId         String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model ExternalUser {
+    id    String @id @default(dbgenerated("uuid()"))
+    name  String
+    token String
+
+    room      Room?    @relation(fields: [roomId], references: [id])
+    roomId    String?
+    history   History? @relation(fields: [historyId], references: [id])
+    historyId String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Quizz {
+    id                 String   @id @default(dbgenerated("uuid()"))
+    userId             String // owner
+    tagID              String
+    categoryQuestionID String
+    categoryAnswerID   String
+    content            String
+    quizzSetId         String
+    answers            Answer[]
+
+    user             InternalUser     @relation(fields: [userId], references: [id]) // owner
+    tag              Tag              @relation(fields: [tagID], references: [id])
+    categoryQuestion CategoryQuestion @relation(fields: [categoryQuestionID], references: [id])
+    categoryAnswer   CategoryAnswer   @relation(fields: [categoryAnswerID], references: [id])
+    quizzSet         QuizzSet         @relation(fields: [quizzSetId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Tag {
+    id     String @id @default(dbgenerated("uuid()"))
+    userID String // owner
+    title  String
+
+    user    InternalUser @relation(fields: [userID], references: [id])
+    quizzes Quizz[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model CategoryQuestion {
+    id     String @id @default(dbgenerated("uuid()"))
+    userID String // owner
+    title  String
+
+    user    InternalUser @relation(fields: [userID], references: [id])
+    quizzes Quizz[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model CategoryAnswer {
+    id     String @id @default(dbgenerated("uuid()"))
+    userID String // owner
+    title  String
+
+    user    InternalUser @relation(fields: [userID], references: [id])
+    quizzes Quizz[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Answer {
+    id        String  @id @default(dbgenerated("uuid()"))
+    quizzID   String
+    content   String
+    isCorrect Boolean
+
+    quizz Quizz @relation(fields: [quizzID], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model QuizzSet {
+    id      String  @id @default(dbgenerated("uuid()"))
+    userId  String // owner
+    type    String
+    quizId  String
+    quizzes Quizz[]
+    games   Game[]
+
+    User InternalUser @relation(fields: [userId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Game {
+    id         String  @id @default(dbgenerated("uuid()"))
+    userId     String
+    roomId     String
+    url        String
+    token      String
+    islock     Boolean
+    quizzSetId String
+
+    quizzSet QuizzSet     @relation(fields: [quizzSetId], references: [id])
+    user     InternalUser @relation(fields: [userId], references: [id]) // host
+    history  History?
+    room     Room?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Room {
+    id            String         @id @default(dbgenerated("uuid()"))
+    gameId        String         @unique
+    internalUsers InternalUser[]
+    externalUsers ExternalUser[]
+    game          Game           @relation(fields: [gameId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model History {
+    id     String @id @default(dbgenerated("uuid()"))
+    gameId String @unique
+
+    internalUsers InternalUser[]
+    externalUsers ExternalUser[]
+
+    game  Game   @relation(fields: [gameId], references: [id])
+    ranks Rank[]
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Rank {
+    id        String @id @default(dbgenerated("uuid()"))
+    historyId String
+    username  String
+    top       Int
+    score     Int
+
+    history History @relation(fields: [historyId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}

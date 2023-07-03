@@ -1,0 +1,204 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Role {
+  id String [pk]
+  title String [not null]
+  internalUsers InternalUser [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table InternalUser {
+  id String [pk]
+  roleId String [not null]
+  username String [not null]
+  name String
+  password String [not null]
+  email String [not null]
+  avatarUrl String [not null]
+  token String [not null]
+  isLogin Boolean [not null]
+  PIN String [not null]
+  rooms Room [not null]
+  role Role [not null]
+  quizzes Quizz [not null]
+  tags Tag [not null]
+  categoryQuestions CategoryQuestion [not null]
+  categoryAnswers CategoryAnswer [not null]
+  quizzSets QuizzSet [not null]
+  games Game [not null]
+  history History
+  historyId String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table ExternalUser {
+  id String [pk]
+  name String [not null]
+  token String [not null]
+  room Room
+  roomId String
+  history History
+  historyId String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Quizz {
+  id String [pk]
+  userId String [not null]
+  tagID String [not null]
+  categoryQuestionID String [not null]
+  categoryAnswerID String [not null]
+  content String [not null]
+  quizzSetId String [not null]
+  answers Answer [not null]
+  user InternalUser [not null]
+  tag Tag [not null]
+  categoryQuestion CategoryQuestion [not null]
+  categoryAnswer CategoryAnswer [not null]
+  quizzSet QuizzSet [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Tag {
+  id String [pk]
+  userID String [not null]
+  title String [not null]
+  user InternalUser [not null]
+  quizzes Quizz [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table CategoryQuestion {
+  id String [pk]
+  userID String [not null]
+  title String [not null]
+  user InternalUser [not null]
+  quizzes Quizz [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table CategoryAnswer {
+  id String [pk]
+  userID String [not null]
+  title String [not null]
+  user InternalUser [not null]
+  quizzes Quizz [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Answer {
+  id String [pk]
+  quizzID String [not null]
+  content String [not null]
+  isCorrect Boolean [not null]
+  quizz Quizz [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table QuizzSet {
+  id String [pk]
+  userId String [not null]
+  type String [not null]
+  quizId String [not null]
+  quizzes Quizz [not null]
+  games Game [not null]
+  User InternalUser [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Game {
+  id String [pk]
+  userId String [not null]
+  roomId String [not null]
+  url String [not null]
+  token String [not null]
+  islock Boolean [not null]
+  quizzSetId String [not null]
+  quizzSet QuizzSet [not null]
+  user InternalUser [not null]
+  history History
+  room Room
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Room {
+  id String [pk]
+  gameId String [unique, not null]
+  internalUsers InternalUser [not null]
+  externalUsers ExternalUser [not null]
+  game Game [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table History {
+  id String [pk]
+  gameId String [unique, not null]
+  internalUsers InternalUser [not null]
+  externalUsers ExternalUser [not null]
+  game Game [not null]
+  ranks Rank [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Table Rank {
+  id String [pk]
+  historyId String [not null]
+  username String [not null]
+  top Int [not null]
+  score Int [not null]
+  history History [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+}
+
+Ref: InternalUser.roleId > Role.id
+
+Ref: InternalUser.historyId > History.id
+
+Ref: ExternalUser.roomId > Room.id
+
+Ref: ExternalUser.historyId > History.id
+
+Ref: Quizz.userId > InternalUser.id
+
+Ref: Quizz.tagID > Tag.id
+
+Ref: Quizz.categoryQuestionID > CategoryQuestion.id
+
+Ref: Quizz.categoryAnswerID > CategoryAnswer.id
+
+Ref: Quizz.quizzSetId > QuizzSet.id [delete: Cascade]
+
+Ref: Tag.userID > InternalUser.id
+
+Ref: CategoryQuestion.userID > InternalUser.id
+
+Ref: CategoryAnswer.userID > InternalUser.id
+
+Ref: Answer.quizzID > Quizz.id
+
+Ref: QuizzSet.userId > InternalUser.id
+
+Ref: Game.quizzSetId > QuizzSet.id
+
+Ref: Game.userId > InternalUser.id
+
+Ref: Room.gameId - Game.id
+
+Ref: History.gameId - Game.id
+
+Ref: Rank.historyId > History.id
