@@ -51,8 +51,8 @@ Table Quizz {
   id String [pk]
   userId String [not null]
   tagID String [not null]
-  categoryQuestionID String [not null]
-  categoryAnswerID String [not null]
+  categoryQuestionId String [not null]
+  categoryAnswerId String [not null]
   content String [not null]
   quizzSetId String [not null]
   answers Answer [not null]
@@ -67,7 +67,7 @@ Table Quizz {
 
 Table Tag {
   id String [pk]
-  userID String [not null]
+  userId String [not null]
   title String [not null]
   user InternalUser [not null]
   quizzes Quizz [not null]
@@ -77,7 +77,7 @@ Table Tag {
 
 Table CategoryQuestion {
   id String [pk]
-  userID String [not null]
+  userId String [not null]
   title String [not null]
   user InternalUser [not null]
   quizzes Quizz [not null]
@@ -87,7 +87,7 @@ Table CategoryQuestion {
 
 Table CategoryAnswer {
   id String [pk]
-  userID String [not null]
+  userId String [not null]
   title String [not null]
   user InternalUser [not null]
   quizzes Quizz [not null]
@@ -97,7 +97,7 @@ Table CategoryAnswer {
 
 Table Answer {
   id String [pk]
-  quizzID String [not null]
+  quizzId String [not null]
   content String [not null]
   isCorrect Boolean [not null]
   quizz Quizz [not null]
@@ -177,19 +177,19 @@ Ref: Quizz.userId > InternalUser.id
 
 Ref: Quizz.tagID > Tag.id
 
-Ref: Quizz.categoryQuestionID > CategoryQuestion.id
+Ref: Quizz.categoryQuestionId > CategoryQuestion.id
 
-Ref: Quizz.categoryAnswerID > CategoryAnswer.id
+Ref: Quizz.categoryAnswerId > CategoryAnswer.id
 
 Ref: Quizz.quizzSetId > QuizzSet.id [delete: Cascade]
 
-Ref: Tag.userID > InternalUser.id
+Ref: Tag.userId > InternalUser.id
 
-Ref: CategoryQuestion.userID > InternalUser.id
+Ref: CategoryQuestion.userId > InternalUser.id
 
-Ref: CategoryAnswer.userID > InternalUser.id
+Ref: CategoryAnswer.userId > InternalUser.id
 
-Ref: Answer.quizzID > Quizz.id
+Ref: Answer.quizzId > Quizz.id
 
 Ref: QuizzSet.userId > InternalUser.id
 
