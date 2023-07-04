@@ -36,4 +36,4 @@ lerna-debug.log*
 
 build
 .env
-package-lock.json
+*-lock.json
