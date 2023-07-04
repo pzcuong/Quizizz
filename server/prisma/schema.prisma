@@ -33,16 +33,16 @@ model InternalUser {
     isLogin   Boolean
     PIN       String
 
-    rooms             Room[]
-    role              Role               @relation(fields: [roleId], references: [id])
-    quizzes           Quizz[]
-    tags              Tag[]
-    categoryQuestions CategoryQuestion[]
-    categoryAnswers   CategoryAnswer[]
-    quizzSets         QuizzSet[]
-    games             Game[]
-    history           History?           @relation(fields: [historyId], references: [id])
-    historyId         String?
+    rooms              Room[]
+    role               Role               @relation(fields: [roleId], references: [id])
+    quizzes            Quizz[]
+    tags               Tag[]
+    questionCategories QuestionCategory[]
+    answerCategories   AnswerCategory[]
+    quizzSets          QuizzSet[]
+    multiPlayerGames   MultiPlayerGame[]
+    singlePlayerGames  SinglePlayerGame[]
+    histories          History[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -65,17 +65,18 @@ model ExternalUser {
 model Quizz {
     id                 String   @id @default(cuid())
     userId             String // owner
-    tagID              String
-    categoryQuestionId String
-    categoryAnswerId   String
+    tagId              String
+    questionCategoryId String
+    answerCategoryId   String
+    time               Int
     content            String
     quizzSetId         String
     answers            Answer[]
 
     user             InternalUser     @relation(fields: [userId], references: [id]) // owner
-    tag              Tag              @relation(fields: [tagID], references: [id])
-    categoryQuestion CategoryQuestion @relation(fields: [categoryQuestionId], references: [id])
-    categoryAnswer   CategoryAnswer   @relation(fields: [categoryAnswerId], references: [id])
+    tag              Tag              @relation(fields: [tagId], references: [id])
+    categoryQuestion QuestionCategory @relation(fields: [questionCategoryId], references: [id])
+    answerCategory   AnswerCategory   @relation(fields: [answerCategoryId], references: [id])
     quizzSet         QuizzSet         @relation(fields: [quizzSetId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
@@ -94,7 +95,7 @@ model Tag {
     updatedAt DateTime @updatedAt
 }
 
-model CategoryQuestion {
+model QuestionCategory {
     id     String @id @default(cuid())
     userId String // owner
     title  String
@@ -106,7 +107,7 @@ model CategoryQuestion {
     updatedAt DateTime @updatedAt
 }
 
-model CategoryAnswer {
+model AnswerCategory {
     id     String @id @default(cuid())
     userId String // owner
     title  String
@@ -131,12 +132,14 @@ model Answer {
 }
 
 model QuizzSet {
-    id      String  @id @default(cuid())
-    userId  String // owner
-    type    String
-    quizId  String
-    quizzes Quizz[]
-    games   Game[]
+    id                String             @id @default(cuid())
+    userId            String // owner
+    type              String
+    quizId            String
+    isShared          Boolean
+    quizzes           Quizz[]
+    multiPlayerGames  MultiPlayerGame[]
+    singlePlayerGames SinglePlayerGame[]
 
     User InternalUser @relation(fields: [userId], references: [id])
 
@@ -144,13 +147,13 @@ model QuizzSet {
     updatedAt DateTime @updatedAt
 }
 
-model Game {
+model MultiPlayerGame {
     id         String  @id @default(cuid())
     userId     String
     roomId     String
     url        String
     token      String
-    islock     Boolean
+    isLock     Boolean
     quizzSetId String
 
     quizzSet QuizzSet     @relation(fields: [quizzSetId], references: [id])
@@ -162,26 +165,54 @@ model Game {
     updatedAt DateTime @updatedAt
 }
 
+model SinglePlayerGame {
+    id                         String  @id @default(cuid())
+    userId                     String
+    quizzSetId                 String
+    url                        String
+    token                      String
+    isLock                     Boolean
+    singlePlayerGameCategoryId String
+
+    quizzSet QuizzSet     @relation(fields: [quizzSetId], references: [id])
+    user     InternalUser @relation(fields: [userId], references: [id]) // host
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    singlePlayerGameCategory SinglePlayerGameCategory @relation(fields: [singlePlayerGameCategoryId], references: [id])
+}
+
+model SinglePlayerGameCategory {
+    id    String @id @default(cuid())
+    title String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    singlePlayerGames SinglePlayerGame[]
+}
+
 model Room {
-    id            String         @id @default(cuid())
-    gameId        String         @unique
-    internalUsers InternalUser[]
-    externalUsers ExternalUser[]
-    game          Game           @relation(fields: [gameId], references: [id])
+    id                String          @id @default(cuid())
+    multiPlayergameId String          @unique
+    internalUsers     InternalUser[]
+    externalUsers     ExternalUser[]
+    multiPlayergame   MultiPlayerGame @relation(fields: [multiPlayergameId], references: [id])
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
 
 model History {
-    id     String @id @default(cuid())
-    gameId String @unique
+    id                String @id @default(cuid())
+    multiPlayergameId String @unique
+    userId          String
 
-    internalUsers InternalUser[]
     externalUsers ExternalUser[]
-
-    game  Game   @relation(fields: [gameId], references: [id])
-    ranks Rank[]
+    user            InternalUser    @relation(fields: [userId], references: [id])
+    multiPlayergame MultiPlayerGame @relation(fields: [multiPlayergameId], references: [id])
+    ranks           Rank[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

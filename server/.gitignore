@@ -37,3 +37,5 @@ lerna-debug.log*
 build
 .env
 *-lock.json
+prisma/migrations
+src/utils/testConnectionDb.ts

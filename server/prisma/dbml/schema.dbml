@@ -25,12 +25,12 @@ Table InternalUser {
   role Role [not null]
   quizzes Quizz [not null]
   tags Tag [not null]
-  categoryQuestions CategoryQuestion [not null]
-  categoryAnswers CategoryAnswer [not null]
+  questionCategories QuestionCategory [not null]
+  answerCategories AnswerCategory [not null]
   quizzSets QuizzSet [not null]
-  games Game [not null]
-  history History
-  historyId String
+  multiPlayerGames MultiPlayerGame [not null]
+  singlePlayerGames SinglePlayerGame [not null]
+  histories History [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 }
@@ -50,16 +50,17 @@ Table ExternalUser {
 Table Quizz {
   id String [pk]
   userId String [not null]
-  tagID String [not null]
-  categoryQuestionId String [not null]
-  categoryAnswerId String [not null]
+  tagId String [not null]
+  questionCategoryId String [not null]
+  answerCategoryId String [not null]
+  time Int [not null]
   content String [not null]
   quizzSetId String [not null]
   answers Answer [not null]
   user InternalUser [not null]
   tag Tag [not null]
-  categoryQuestion CategoryQuestion [not null]
-  categoryAnswer CategoryAnswer [not null]
+  categoryQuestion QuestionCategory [not null]
+  answerCategory AnswerCategory [not null]
   quizzSet QuizzSet [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -75,7 +76,7 @@ Table Tag {
   updatedAt DateTime [not null]
 }
 
-Table CategoryQuestion {
+Table QuestionCategory {
   id String [pk]
   userId String [not null]
   title String [not null]
@@ -85,7 +86,7 @@ Table CategoryQuestion {
   updatedAt DateTime [not null]
 }
 
-Table CategoryAnswer {
+Table AnswerCategory {
   id String [pk]
   userId String [not null]
   title String [not null]
@@ -110,20 +111,22 @@ Table QuizzSet {
   userId String [not null]
   type String [not null]
   quizId String [not null]
+  isShared Boolean [not null]
   quizzes Quizz [not null]
-  games Game [not null]
+  multiPlayerGames MultiPlayerGame [not null]
+  singlePlayerGames SinglePlayerGame [not null]
   User InternalUser [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 }
 
-Table Game {
+Table MultiPlayerGame {
   id String [pk]
   userId String [not null]
   roomId String [not null]
   url String [not null]
   token String [not null]
-  islock Boolean [not null]
+  isLock Boolean [not null]
   quizzSetId String [not null]
   quizzSet QuizzSet [not null]
   user InternalUser [not null]
@@ -133,22 +136,46 @@ Table Game {
   updatedAt DateTime [not null]
 }
 
+Table SinglePlayerGame {
+  id String [pk]
+  userId String [not null]
+  quizzSetId String [not null]
+  url String [not null]
+  token String [not null]
+  isLock Boolean [not null]
+  singlePlayerGameCategoryId String [not null]
+  quizzSet QuizzSet [not null]
+  user InternalUser [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  singlePlayerGameCategory SinglePlayerGameCategory [not null]
+}
+
+Table SinglePlayerGameCategory {
+  id String [pk]
+  title String [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  singlePlayerGames SinglePlayerGame [not null]
+}
+
 Table Room {
   id String [pk]
-  gameId String [unique, not null]
+  multiPlayergameId String [unique, not null]
   internalUsers InternalUser [not null]
   externalUsers ExternalUser [not null]
-  game Game [not null]
+  multiPlayergame MultiPlayerGame [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
 }
 
 Table History {
   id String [pk]
-  gameId String [unique, not null]
-  internalUsers InternalUser [not null]
+  multiPlayergameId String [unique, not null]
+  userId String [not null]
   externalUsers ExternalUser [not null]
-  game Game [not null]
+  user InternalUser [not null]
+  multiPlayergame MultiPlayerGame [not null]
   ranks Rank [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -167,38 +194,44 @@ Table Rank {
 
 Ref: InternalUser.roleId > Role.id
 
-Ref: InternalUser.historyId > History.id
-
 Ref: ExternalUser.roomId > Room.id
 
 Ref: ExternalUser.historyId > History.id
 
 Ref: Quizz.userId > InternalUser.id
 
-Ref: Quizz.tagID > Tag.id
+Ref: Quizz.tagId > Tag.id
 
-Ref: Quizz.categoryQuestionId > CategoryQuestion.id
+Ref: Quizz.questionCategoryId > QuestionCategory.id
 
-Ref: Quizz.categoryAnswerId > CategoryAnswer.id
+Ref: Quizz.answerCategoryId > AnswerCategory.id
 
 Ref: Quizz.quizzSetId > QuizzSet.id [delete: Cascade]
 
 Ref: Tag.userId > InternalUser.id
 
-Ref: CategoryQuestion.userId > InternalUser.id
+Ref: QuestionCategory.userId > InternalUser.id
 
-Ref: CategoryAnswer.userId > InternalUser.id
+Ref: AnswerCategory.userId > InternalUser.id
 
 Ref: Answer.quizzId > Quizz.id
 
 Ref: QuizzSet.userId > InternalUser.id
 
-Ref: Game.quizzSetId > QuizzSet.id
+Ref: MultiPlayerGame.quizzSetId > QuizzSet.id
 
-Ref: Game.userId > InternalUser.id
+Ref: MultiPlayerGame.userId > InternalUser.id
 
-Ref: Room.gameId - Game.id
+Ref: SinglePlayerGame.quizzSetId > QuizzSet.id
 
-Ref: History.gameId - Game.id
+Ref: SinglePlayerGame.userId > InternalUser.id
+
+Ref: SinglePlayerGame.singlePlayerGameCategoryId > SinglePlayerGameCategory.id
+
+Ref: Room.multiPlayergameId - MultiPlayerGame.id
+
+Ref: History.userId > InternalUser.id
+
+Ref: History.multiPlayergameId - MultiPlayerGame.id
 
 Ref: Rank.historyId > History.id
