@@ -10,7 +10,7 @@ export class EmailService {
     constructor() {
         console.log(process.env.EMAIL_USERNAME);
         console.log(process.env.EMAIL_PASSWORD);
-        
+
         this.mailer = nodemailer.createTransport(
             SMTPTransport({
                 service: 'gmail',
@@ -31,10 +31,9 @@ export class EmailService {
         };
 
         try {
-            await this.mailer.sendMail(mailOptions);
-            console.log('Email sent successfully');
+            return await this.mailer.sendMail(mailOptions);
         } catch (error) {
-            console.error('Failed to send the email', error);
+            throw new Error(error);
         }
     }
 }

@@ -8,11 +8,29 @@ export class EmailController {
     @Get('send')
     async sendMail() {
         const data = {
-            to: 'pzcuong.uit@gmail.com',
-            subject: 'Hello from NestJS - mail 2',
-            text: 'This is a test email'
+            email: 'pzcuong.uit@gmail.com',
+            subject: 'Test',
+            text: 'Hello world',
         }
-        await this.emailService.sendMail(data.to, data.subject, data.text);
-        return { message: 'Email sent successfully' };
+        const response = await this.emailService.sendMail(data.email, data.subject, data.text);
+        try {
+            return {
+                statusCode: 200,
+                message: 'Send mail successfully',
+                data: response,
+            };
+        } catch (error) {
+            throw new Error(error);
+        }
+    }
+
+    @Post('send')
+    async sendMailPost(@Body() data) {
+        const response = await this.emailService.sendMail(data.email, data.subject, data.text);
+        try {
+            return response;
+        } catch (error) {
+            throw new Error(error);
+        }
     }
 }
