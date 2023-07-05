@@ -107,6 +107,7 @@ CREATE TABLE `user_questions` (
     `id` VARCHAR(191) NOT NULL,
     `userId` VARCHAR(191) NOT NULL,
     `participantId` VARCHAR(191) NOT NULL,
+    `questionId` VARCHAR(191) NOT NULL,
     `question` VARCHAR(191) NOT NULL,
     `image` TEXT NULL,
     `options` TEXT NOT NULL,

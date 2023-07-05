@@ -132,6 +132,7 @@ model user_questions {
     id            String @id @default(cuid())
     userId        String
     participantId String
+    questionId    String
 
     question     String
     image        String?  @db.Text
