@@ -14,9 +14,9 @@ export class RegisterDto {
     })
     confirmPassword: string;
 
-    @IsString({ message: 'Display Name must be a string' })
+    @IsString({ message: 'Display name must be a string' })
     @Length(3, 20, {
-        message: 'Display Name must be between 3 and 20 characters',
+        message: 'Display name must be between 3 and 20 characters',
     })
     displayName: string;
 }
