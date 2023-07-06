@@ -133,12 +133,12 @@ export class AuthService {
 
     async refreshTokens(dto: RefreshTokenDto) {
         try {
-            const { refresh_token } = dto;
-            const decoded = await this.verifyToken(refresh_token);
+            const { refreshToken } = dto;
+            const decoded = await this.verifyToken(refreshToken);
             const user = await this.prisma.users.findFirst({
                 where: {
                     id: decoded.userId,
-                    token: refresh_token,
+                    token: refreshToken,
                 },
                 select: {
                     email: true,
