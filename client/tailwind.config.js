@@ -7,7 +7,7 @@ export default {
 				transparent: 'transparent',
 				primary: '#f8fff0',
 				background: '#f5f5f8',
-				button: '#8daf74',
+				secondary: '#8daf74',
 				darkGreen: '#1E3F20'
 			},
 			fontFamily: {
