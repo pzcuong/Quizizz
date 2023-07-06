@@ -11,7 +11,7 @@ export default {
 				darkGreen: '#1E3F20'
 			},
 			fontFamily: {
-				body: ['Nunito'],
+				body: ['Sora'],
 				title: ['Jost']
 			}
 		}
