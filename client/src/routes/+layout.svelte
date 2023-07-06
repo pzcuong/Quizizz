@@ -1,0 +1,9 @@
+<script>
+	import '../app.css';
+	import Navbar from '../components/layout/navbar.svelte';
+	import Footer from '../components/layout/footer.svelte';
+</script>
+
+<Navbar />
+<slot />
+<Footer />

@@ -1,13 +1,11 @@
 -- CreateTable
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
-    `username` VARCHAR(191) NOT NULL,
-    `displayName` VARCHAR(191) NULL,
+    `displayName` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NULL,
     `email` VARCHAR(191) NOT NULL,
     `avatar` TEXT NOT NULL,
     `isLogin` BOOLEAN NOT NULL,
-    `validationCode` VARCHAR(191) NOT NULL,
     `role` VARCHAR(191) NOT NULL,
     `status` INTEGER NOT NULL DEFAULT 1,
     `authId` VARCHAR(191) NULL,
@@ -169,6 +167,9 @@ ALTER TABLE `user_questions` ADD CONSTRAINT `user_questions_participantId_fkey` 
 
 -- AddForeignKey
 ALTER TABLE `user_questions` ADD CONSTRAINT `user_questions_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `user_questions` ADD CONSTRAINT `user_questions_questionId_fkey` FOREIGN KEY (`questionId`) REFERENCES `questions`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `rooms` ADD CONSTRAINT `rooms_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
