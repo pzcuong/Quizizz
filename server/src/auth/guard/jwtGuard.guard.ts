@@ -5,6 +5,7 @@ import {
     UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Status } from '../types';
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
     constructor(private jwt: JwtService) {}
@@ -19,6 +20,9 @@ export class JwtAuthGuard implements CanActivate {
                 secret: process.env.JWT_SECRET,
                 publicKey: process.env.PUBLIC_KEY,
             });
+            if (payload['status'] === Status.Inactive) {
+                throw new UnauthorizedException('Account is not active');
+            }
             request.user = payload;
             return true;
         } catch (error) {

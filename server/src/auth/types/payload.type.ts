@@ -6,4 +6,5 @@ export type Payload = {
     role: Role;
     displayName: string;
     avatar: string;
+    status: number;
 };
