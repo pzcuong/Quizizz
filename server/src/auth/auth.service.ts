@@ -19,94 +19,102 @@ export class AuthService {
     ) {}
 
     async register(dto: RegisterDto) {
-        const { email, password, confirmPassword, displayName } = dto;
-        if (password !== confirmPassword) {
-            throw new HttpException(
-                'Password do not match confirm password',
-                HttpStatus.BAD_REQUEST,
-            );
+        try {
+            const { email, password, confirmPassword, displayName } = dto;
+            if (password !== confirmPassword) {
+                throw new HttpException(
+                    'Password do not match confirm password',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            const hashedPassword = await this.hashData(password);
+            const userExists = await this.prisma.users.findUnique({
+                where: {
+                    email: email,
+                },
+            });
+            if (userExists && userExists.status === Status.Active) {
+                throw new HttpException(
+                    'User with this email already exists, please login',
+                    HttpStatus.BAD_REQUEST,
+                );
+            } else if (userExists && userExists.status === Status.Inactive) {
+                throw new HttpException(
+                    'User with this email already exists, please confirm your email',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            const newUser = await this.prisma.users.create({
+                data: {
+                    email: email,
+                    password: hashedPassword,
+                    displayName: displayName,
+                    isLogin: false,
+                    role: Role.User,
+                    avatar: process.env.DEFAULT_AVATAR,
+                    status: Status.Inactive,
+                },
+            });
+            const confirmToken = await this.generateUserIdToken(newUser.id);
+            const sendMailOptions: sendMailOptions = {
+                to: newUser.email,
+                subject: '[PTQuiz Email Confirmation]',
+                displayName: newUser.displayName,
+                token: confirmToken,
+                type: 'confirm',
+            };
+            await this.mailer.sendMail(sendMailOptions);
+            return null;
+        } catch (err) {
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
         }
-        const hashedPassword = await this.hashData(password);
-        const userExists = await this.prisma.users.findUnique({
-            where: {
-                email: email,
-            },
-        });
-        if (userExists && userExists.status === Status.Active) {
-            throw new HttpException(
-                'User with this email already exists, please login',
-                HttpStatus.BAD_REQUEST,
-            );
-        } else if (userExists && userExists.status === Status.Inactive) {
-            throw new HttpException(
-                'User with this email already exists, please confirm your email',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-        const newUser = await this.prisma.users.create({
-            data: {
-                email: email,
-                password: hashedPassword,
-                displayName: displayName,
-                isLogin: false,
-                role: Role.User,
-                avatar: process.env.DEFAULT_AVATAR,
-                status: Status.Inactive,
-            },
-        });
-        const confirmToken = await this.generateUserIdToken(newUser.id);
-        const sendMailOptions: sendMailOptions = {
-            to: newUser.email,
-            subject: '[PTQuiz Email Confirmation]',
-            displayName: newUser.displayName,
-            token: confirmToken,
-            type: 'confirm',
-        };
-        await this.mailer.sendMail(sendMailOptions);
-        return null;
     }
     async resendConfirmation(dto: EmailDto) {
-        const { email } = dto;
-        const user = await this.prisma.users.findUnique({
-            where: {
-                email: email,
-            },
-            select: {
-                email: true,
-                id: true,
-                displayName: true,
-                status: true,
-            },
-        });
-        if (!user) {
-            throw new HttpException(
-                'User with this email does not exist',
-                HttpStatus.BAD_REQUEST,
-            );
+        try {
+            const { email } = dto;
+            const user = await this.prisma.users.findUnique({
+                where: {
+                    email: email,
+                },
+                select: {
+                    email: true,
+                    id: true,
+                    displayName: true,
+                    status: true,
+                },
+            });
+            if (!user) {
+                throw new HttpException(
+                    'User with this email does not exist',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            if (user.status === Status.Active) {
+                throw new HttpException(
+                    'Email already confirmed',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            const confirmToken = await this.generateUserIdToken(user.id);
+            const sendMailOptions: sendMailOptions = {
+                to: user.email,
+                subject: '[PTQuiz Email Confirmation]',
+                displayName: user.displayName,
+                token: confirmToken,
+                type: 'confirm',
+            };
+            await this.mailer.sendMail(sendMailOptions);
+            return {
+                message: 'Confirmation email sent successfully',
+            };
+        } catch (err) {
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
         }
-        if (user.status === Status.Active) {
-            throw new HttpException(
-                'Email already confirmed',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-        const confirmToken = await this.generateUserIdToken(user.id);
-        const sendMailOptions: sendMailOptions = {
-            to: user.email,
-            subject: '[PTQuiz Email Confirmation]',
-            displayName: user.displayName,
-            token: confirmToken,
-            type: 'confirm',
-        };
-        await this.mailer.sendMail(sendMailOptions);
-        return {
-            message: 'Confirmation email sent successfully',
-        };
     }
 
     async confirmEmail(dto: TokenDto) {
-        const { token } = dto;
         try {
+            const { token } = dto;
             const decoded = await this.verifyToken(token);
             const user = await this.prisma.users.findUnique({
                 where: {
@@ -162,113 +170,128 @@ export class AuthService {
                 },
             };
         } catch (err) {
-            throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
         }
     }
 
     async login(dto: LoginDto) {
-        const { email, password } = dto;
-        const user = await this.prisma.users.findUnique({
-            where: {
-                email: email,
-            },
-            select: {
-                email: true,
-                id: true,
-                password: true,
-                role: true,
-                displayName: true,
-                avatar: true,
-                status: true,
-            },
-        });
-        if (!user) {
-            throw new HttpException(
-                'Invalid credentials',
-                HttpStatus.BAD_REQUEST,
+        try {
+            const { email, password } = dto;
+            const user = await this.prisma.users.findUnique({
+                where: {
+                    email: email,
+                },
+                select: {
+                    email: true,
+                    id: true,
+                    password: true,
+                    role: true,
+                    displayName: true,
+                    avatar: true,
+                    status: true,
+                },
+            });
+            if (!user) {
+                throw new HttpException(
+                    'Invalid credentials',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            if (user.status !== Status.Active) {
+                throw new HttpException(
+                    'Your account is not active, please confirm your email',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            const isPasswordValid = await this.verifyHash(
+                user.password,
+                password,
             );
-        }
-        if (user.status !== Status.Active) {
-            throw new HttpException(
-                'Your account is not active, please confirm your email',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-        const isPasswordValid = await this.verifyHash(user.password, password);
-        if (!isPasswordValid) {
-            throw new HttpException(
-                'Invalid credentials',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-        const payload: Payload = {
-            email: user.email,
-            id: user.id,
-            role: user.role as Role,
-            displayName: user.displayName,
-            avatar: user.avatar,
-            status: user.status,
-        };
-        const tokens = await this.generateTokens(payload);
-        await this.updateRefreshToken(user.id, tokens.refreshToken, true);
-        return {
-            ...tokens,
-            user: {
-                id: user.id,
+            if (!isPasswordValid) {
+                throw new HttpException(
+                    'Invalid credentials',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            const payload: Payload = {
                 email: user.email,
+                id: user.id,
+                role: user.role as Role,
                 displayName: user.displayName,
                 avatar: user.avatar,
-                role: user.role,
                 status: user.status,
-            },
-        };
+            };
+            const tokens = await this.generateTokens(payload);
+            await this.updateRefreshToken(user.id, tokens.refreshToken, true);
+            return {
+                ...tokens,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    displayName: user.displayName,
+                    avatar: user.avatar,
+                    role: user.role,
+                    status: user.status,
+                },
+            };
+        } catch (err) {
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+        }
     }
 
     async logout(userId: string) {
-        await this.updateRefreshToken(userId, '', false);
-        return {
-            accessToken: '',
-            refreshToken: '',
-        };
+        try {
+            await this.updateRefreshToken(userId, '', false);
+            return {
+                accessToken: '',
+                refreshToken: '',
+            };
+        } catch (err) {
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+        }
     }
 
     async forgotPassword(dto: EmailDto) {
-        const { email } = dto;
-        const user = await this.prisma.users.findUnique({
-            where: {
-                email: email,
-            },
-            select: {
-                email: true,
-                id: true,
-                displayName: true,
-                status: true,
-            },
-        });
-        if (!user) {
-            throw new HttpException(
-                'User with this email does not exist',
-                HttpStatus.BAD_REQUEST,
-            );
+        try {
+            const { email } = dto;
+            const user = await this.prisma.users.findUnique({
+                where: {
+                    email: email,
+                },
+                select: {
+                    email: true,
+                    id: true,
+                    displayName: true,
+                    status: true,
+                },
+            });
+            if (!user) {
+                throw new HttpException(
+                    'User with this email does not exist',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            if (user.status !== Status.Active) {
+                throw new HttpException(
+                    'Your account is not active, please confirm your email',
+                    HttpStatus.BAD_REQUEST,
+                );
+            }
+            const resetToken = await this.generateUserIdToken(user.id);
+            const sendMailOptions: sendMailOptions = {
+                to: user.email,
+                subject: '[PTQuiz Reset Password]',
+                displayName: user.displayName,
+                token: resetToken,
+                type: 'reset',
+            };
+            await this.mailer.sendMail(sendMailOptions);
+            return {
+                message: 'Reset password link sent successfully',
+            };
+        } catch (err) {
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
         }
-        if (user.status !== Status.Active) {
-            throw new HttpException(
-                'Your account is not active, please confirm your email',
-                HttpStatus.BAD_REQUEST,
-            );
-        }
-        const resetToken = await this.generateUserIdToken(user.id);
-        const sendMailOptions: sendMailOptions = {
-            to: user.email,
-            subject: '[PTQuiz Reset Password]',
-            displayName: user.displayName,
-            token: resetToken,
-            type: 'reset',
-        };
-        await this.mailer.sendMail(sendMailOptions);
-        return {
-            message: 'Reset password link sent successfully',
-        };
     }
 
     async resetPassword(dto: ResetPasswordDto) {
@@ -331,24 +354,8 @@ export class AuthService {
                 },
             };
         } catch (err) {
-            throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
         }
-    }
-
-    async getMe(userId: string) {
-        const user = await this.prisma.users.findUnique({
-            where: {
-                id: userId,
-            },
-            select: {
-                email: true,
-                id: true,
-                avatar: true,
-                displayName: true,
-                role: true,
-            },
-        });
-        return user;
     }
 
     async refreshTokens(dto: RefreshTokenDto) {
@@ -393,7 +400,7 @@ export class AuthService {
             await this.updateRefreshToken(user.id, tokens.refreshToken, true);
             return tokens;
         } catch (err) {
-            throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
         }
     }
 

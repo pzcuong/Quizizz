@@ -10,12 +10,20 @@ async function bootstrap() {
         new ValidationPipe({
             whitelist: true,
             exceptionFactory(errors) {
-                const message = errors
+                const error = errors
                     .map((error) => {
                         return Object.values(error.constraints);
                     })
                     .join(', ');
-                throw new HttpException(message, HttpStatus.BAD_REQUEST);
+                const message = `Validation failed`;
+                return new HttpException(
+                    {
+                        statusCode: HttpStatus.BAD_REQUEST,
+                        message,
+                        error,
+                    },
+                    HttpStatus.BAD_REQUEST,
+                );
             },
         }),
     );

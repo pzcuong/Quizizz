@@ -8,9 +8,9 @@ export class RegisterDto {
     @Length(8, 20, { message: 'Password must be between 8 and 20 characters' })
     password: string;
 
-    @IsString({ message: 'Confirm Password must be a string' })
+    @IsString({ message: 'Confirm password must be a string' })
     @Length(8, 20, {
-        message: 'Confirm Password must be between 8 and 20 characters',
+        message: 'Confirm password must be between 8 and 20 characters',
     })
     confirmPassword: string;
 
