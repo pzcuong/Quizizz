@@ -39,7 +39,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Confirmation email sent successfully')
     async resendConfirmation(@Body() dto: EmailDto) {
-        await this.authService.resendConfirmation(dto.email);
+        await this.authService.resendConfirmation(dto);
         return null;
     }
 
@@ -70,7 +70,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @ResponseMessage('Reset password link sent successfully')
     async forgotPassword(@Body() dto: EmailDto) {
-        await this.authService.forgotPassword(dto.email);
+        await this.authService.forgotPassword(dto);
         return null;
     }
 

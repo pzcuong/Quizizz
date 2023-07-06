@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { MailerService } from '../mailer/mailer.service';
 import { Role, Status } from './types';
+import { EmailDto } from './dto/forgotPassword.dto';
 @Injectable()
 export class AuthService {
     constructor(
@@ -63,7 +64,8 @@ export class AuthService {
         await this.mailer.sendMail(sendMailOptions);
         return null;
     }
-    async resendConfirmation(email: string) {
+    async resendConfirmation(dto: EmailDto) {
+        const { email } = dto;
         const user = await this.prisma.users.findUnique({
             where: {
                 email: email,
@@ -228,7 +230,8 @@ export class AuthService {
         };
     }
 
-    async forgotPassword(email: string) {
+    async forgotPassword(dto: EmailDto) {
+        const { email } = dto;
         const user = await this.prisma.users.findUnique({
             where: {
                 email: email,
