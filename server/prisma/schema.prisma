@@ -12,8 +12,8 @@ model users {
 
     displayName String
     password    String?
-    email       String
-    avatar      String  @db.Text
+    email       String  @unique
+    avatar      String? @db.Text
     isLogin     Boolean
     role        String
     status      Int     @default(1)
