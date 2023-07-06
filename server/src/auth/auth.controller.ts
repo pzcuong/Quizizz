@@ -4,7 +4,6 @@ import {
     Get,
     HttpCode,
     HttpStatus,
-    Param,
     Post,
     UseGuards,
     UseInterceptors,
@@ -22,6 +21,7 @@ import { GetCurrentUser } from '../decorators/getCurrentUser.decorator';
 import { JwtAuthGuard } from './guard/jwtGuard.guard';
 import { Payload, Tokens } from './types';
 import { EmailDto } from './dto/forgotPassword.dto';
+import { TokenDto } from './dto/token.dto';
 
 @Controller('auth')
 @UseInterceptors(ResTransformInterceptor)
@@ -88,10 +88,10 @@ export class AuthController {
         return await this.authService.refreshTokens(dto);
     }
 
-    @Get('/confirm/:token')
+    @Post('/confirm')
     @HttpCode(HttpStatus.OK)
-    @ResponseMessage('User confirmed successfully')
-    async confirm(@Param('token') token: string) {
-        return this.authService.confirmEmail(token);
+    @ResponseMessage('Verify account successfully')
+    async confirm(@Body() dto: TokenDto) {
+        return this.authService.confirmEmail(dto);
     }
 }

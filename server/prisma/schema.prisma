@@ -16,7 +16,7 @@ model users {
     avatar      String? @db.Text
     isLogin     Boolean
     role        String
-    status      Int     @default(1)
+    status      Int
     authId      String?
     loginFrom   String?
     token       String? @db.Text

@@ -25,7 +25,7 @@ export class MailerService {
         let text = '';
         let url = '';
         if (type === 'confirm') {
-            url = `${process.env.SERVER_URL}/api/auth/confirm/${token}`;
+            url = `${process.env.CLIENT_URL}/confirm/${token}`;
             text = `Hi ${displayName},\n
             Please confirm your email by clicking on the following link: ${url}\n\nThanks,\nPTQuiz`;
         } else if (type === 'reset') {

@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { MailerService } from '../mailer/mailer.service';
 import { Role, Status } from './types';
 import { EmailDto } from './dto/forgotPassword.dto';
+import { TokenDto } from './dto/token.dto';
 @Injectable()
 export class AuthService {
     constructor(
@@ -103,7 +104,8 @@ export class AuthService {
         };
     }
 
-    async confirmEmail(token: string) {
+    async confirmEmail(dto: TokenDto) {
+        const { token } = dto;
         try {
             const decoded = await this.verifyToken(token);
             const user = await this.prisma.users.findUnique({
