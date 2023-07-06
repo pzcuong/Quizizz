@@ -167,6 +167,7 @@ export class AuthService {
                     displayName: updatedUser.displayName,
                     avatar: updatedUser.avatar,
                     role: updatedUser.role,
+                    status: updatedUser.status,
                 },
             };
         } catch (err) {
@@ -351,6 +352,7 @@ export class AuthService {
                     displayName: updatedUser.displayName,
                     avatar: updatedUser.avatar,
                     role: updatedUser.role,
+                    status: updatedUser.status,
                 },
             };
         } catch (err) {

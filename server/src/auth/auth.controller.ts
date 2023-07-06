@@ -30,14 +30,16 @@ export class AuthController {
 
     @Post('/register')
     @HttpCode(HttpStatus.CREATED)
-    @ResponseMessage('Registered successfully, please check your email')
+    @ResponseMessage(
+        'Registered successfully, please check  verification link in your email',
+    )
     async register(@Body() dto: RegisterDto) {
         return this.authService.register(dto);
     }
 
     @Post('/resend-confirmation')
     @HttpCode(HttpStatus.OK)
-    @ResponseMessage('Confirmation email sent successfully')
+    @ResponseMessage('Verification link sent successfully')
     async resendConfirmation(@Body() dto: EmailDto) {
         await this.authService.resendConfirmation(dto);
         return null;
