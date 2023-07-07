@@ -515,7 +515,10 @@ GET /api/auth/me
 
 Description: Get user info
 
+Headers : 
+```
 Authorization: Bearer token
+```
 
 Request body: None
 
@@ -603,8 +606,10 @@ POST /api/auth/logout
 
 Description: User logout
 
+Headers : 
+```
 Authorization: Bearer token
-
+```
 Request body: None
 
 Request body constraints: None
