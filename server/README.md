@@ -400,7 +400,7 @@ Foreign key constraints description:
 
 
 ## 2. API Specification
-
+[Postman API documentation](https://documenter.getpostman.com/view/19212893/2s93zFYf5W)
 
 ### 2.1. Register
 
