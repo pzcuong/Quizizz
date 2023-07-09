@@ -10,3 +10,8 @@
 	}
 	
 </style>
+
+<Register />
+<!-- <Login /> -->
+
+
