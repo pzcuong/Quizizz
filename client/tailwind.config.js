@@ -6,9 +6,10 @@ export default {
 			colors: {
 				transparent: 'transparent',
 				primary: '#f8fff0',
-				background: '#f5f5f8',
 				secondary: '#8daf74',
-				darkGreen: '#1E3F20'
+				background: '#f5f5f8',
+				darkGreen: '#1E3F20',
+				buttonHover: '#1e3f20'
 			},
 			fontFamily: {
 				body: ['Sora'],

@@ -1,13 +1,14 @@
 <script>
-	import Login from '../components/page/login.svelte';
-	import Register from '../components/page/register.svelte';
+	import LandingPage from "../components/landingPage/landingPage.svelte";
 </script>
 
+<LandingPage/>
 
 <style lang="postcss">
 	:global(html) {
 		background-color: theme(colors.gray.100);
 	}
+	
 </style>
 
 <Register />
