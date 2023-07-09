@@ -66,7 +66,7 @@ export class AuthService {
             await this.mailer.sendMail(sendMailOptions);
             return null;
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
     async resendConfirmation(dto: EmailDto) {
@@ -108,7 +108,7 @@ export class AuthService {
                 message: 'Confirmation email sent successfully',
             };
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
 
@@ -171,7 +171,7 @@ export class AuthService {
                 },
             };
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
 
@@ -236,7 +236,7 @@ export class AuthService {
                 },
             };
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
 
@@ -248,7 +248,7 @@ export class AuthService {
                 refreshToken: '',
             };
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
 
@@ -291,7 +291,7 @@ export class AuthService {
                 message: 'Reset password link sent successfully',
             };
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
 
@@ -356,7 +356,7 @@ export class AuthService {
                 },
             };
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
 
@@ -402,7 +402,7 @@ export class AuthService {
             await this.updateRefreshToken(user.id, tokens.refreshToken, true);
             return tokens;
         } catch (err) {
-            throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+            return exceptionHandler(err);
         }
     }
 
@@ -463,3 +463,13 @@ export class AuthService {
         });
     }
 }
+
+export const exceptionHandler = (err: any) => {
+    if (err.name === 'JsonWebTokenError' || err.name === 'SyntaxError') {
+        throw new HttpException('Invalid token', HttpStatus.BAD_REQUEST);
+    } else if (err.name === 'TokenExpiredError') {
+        throw new HttpException('Token expired', HttpStatus.BAD_REQUEST);
+    } else {
+        throw new HttpException(err?.message, HttpStatus.BAD_REQUEST);
+    }
+};
