@@ -3,9 +3,9 @@
   ### User Registration and Authentication
   Allow users to register and log in to the app to access the quiz game.
   ### Forgot Password
-  Allow users to recover their account using a PIN code that they set during registration or updated in their profile. If they forget the PIN code, they must contact the administrator for account recovery.
+  In case a user forgets their password, our app provides a convenient password reset feature. Users can request a password reset by entering their email address. They will receive an email containing a unique link to reset their password. By clicking on the link, users will be directed to a page where they can securely enter a new password of their choice.
   ### Quiz Categories
-  Users should be able to choose from a variety of quiz categories (e.g., Science, History, Entertainment). 
+  Users should be able to choose from a variety of quiz categories (e.g., Science, History, Math, ...). 
   ### Clone the Quiz
   Logged-in users should have the option to clone a public quiz, which will then be saved in their quizzes.
   ### Create Quiz
